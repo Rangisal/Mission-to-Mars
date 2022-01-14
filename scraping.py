@@ -19,6 +19,7 @@ def scrape_all():
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
         "facts": mars_facts(),
+        "hemispheres":hemispheres(browser),
         "last_modified": dt.datetime.now()
     }
 
@@ -104,3 +105,37 @@ if __name__ == "__main__":
 
     # If running as script, print scraped data
     print(scrape_all())
+    
+#Scraping Hemispheres
+
+def hemispheres(browser):
+    
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+
+    hemisphere_image_urls = []
+
+    # 3. Write code to retrieve the image urls and titles for each hemisphere.
+    for i in range(4):
+        #create empty dictionary
+        #hemispheres = {}
+        browser.find_by_css('a.product-item img')[i].click()
+        hemisphere_data = scrape_hemisphere(browser.html)
+        hemisphere_data["img_url"] = url + hemisphere_data["img_url"]
+        hemisphere_image_urls.append(hemisphere_data)
+        browser.back()
+    return hemisphere_image_urls
+
+
+def scrape_hemisphere(html_text):
+    hemi_soup = soup(html_text, "html.parser")
+    try:
+        title_elem = hemi_soup.find("h2", class_="title").get_text()
+        sample_elem= hemi_soup.find("a", text ="Sample").get("href")
+    except AttributeError:
+        return None 
+    hemispheres = {
+        "title":title_elem,
+        "img_url":sample_elem,
+    }
+    return hemispheres
